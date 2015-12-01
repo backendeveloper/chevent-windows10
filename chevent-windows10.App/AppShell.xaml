@@ -1,0 +1,81 @@
+﻿<Page
+    x:Name="Root"
+    x:Class="chevent_windows10.App.AppShell"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:chevent_windows10.App"
+    xmlns:controls="using:chevent_windows10.App.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{StaticResource ApplicationPageBackgroundThemeBrush}" KeyDown="AppShell_KeyDown" TabNavigation="Cycle"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <DataTemplate x:Key="NavMenuItemTemplate" x:DataType="local:NavMenuItem">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <FontIcon x:Name="Glyph" FontSize="16" Glyph="{x:Bind SymbolAsChar}" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTipService.ToolTip="{x:Bind Label}"/>
+                <TextBlock x:Name="Text" Grid.Column="1" Text="{x:Bind Label}" />
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid>
+        <!-- Adaptive triggers -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootSplitView.DisplayMode" Value="CompactInline"/>
+                        <Setter Target="RootSplitView.IsPaneOpen" Value="True"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootSplitView.DisplayMode" Value="Overlay"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <!-- Top-level navigation menu + app content -->
+        <SplitView x:Name="RootSplitView"
+                   DisplayMode="Inline"
+                   OpenPaneLength="256"
+                   IsTabStop="False">
+            <SplitView.Pane>
+                <controls:NavMenuListView x:Name="NavMenuList"
+                                          TabIndex="3"
+                                          Margin="0,48,0,0" ContainerContentChanging="NavMenuItemContainerContentChanging" ItemContainerStyle="{StaticResource NavMenuItemContainerStyle}" ItemTemplate="{StaticResource NavMenuItemTemplate}" ItemInvoked="NavMenuList_ItemInvoked">
+                    <controls:NavMenuListView.Header>
+                        <Button x:Name="BackButton" TabIndex="2" Style="{StaticResource NavigationBackButtonStyle}" IsEnabled="{Binding AppFrame.CanGoBack, ElementName=Root}" Width="{Binding ItemsPanelRoot.Width, ElementName=NavMenuList}" HorizontalAlignment="{Binding ItemsPanelRoot.HorizontalAligment, ElementName=NavMenuList}" Click="BackButton_Click" ></Button>
+                    </controls:NavMenuListView.Header>
+                </controls:NavMenuListView>
+            </SplitView.Pane>
+
+            <Frame x:Name="frame" Navigating="OnNavigatingToPage" Navigated="OnNavigatedToPage">
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition>
+                            <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                <EntranceNavigationTransitionInfo/>
+                            </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                        </NavigationThemeTransition>
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+            </Frame>
+        </SplitView>
+
+        <ToggleButton x:Name="TogglePaneButton" TabIndex="1" Style="{StaticResource SplitViewTogglePaneButtonStyle}" IsChecked="{Binding IsPanelOpen, ElementName=RootSplitView, Mode=TwoWay}" Unchecked="TogglePaneButton_Checked" AutomationProperties.Name="Menu" ToolTipService.ToolTip="Menu" />
+    </Grid>
+</Page>
